@@ -2,8 +2,14 @@ import gym
 from gym.envs.registration import registry, make, spec
 
 
+def _env_specs():
+  # gym < 0.26 has an EnvRegistry with an env_specs dict; gym 0.26 made the
+  # registry itself a plain dict of EnvSpecs.
+  return getattr(registry, 'env_specs', registry)
+
+
 def register(id, *args, **kvargs):
-  if id in registry.env_specs:
+  if id in _env_specs():
     return
   else:
     return gym.envs.registration.register(id, *args, **kvargs)
@@ -228,7 +234,7 @@ register(id='HumanoidFlagrunHarderBulletEnv-v0',
 
 
 def getList():
-  btenvs = ['- ' + spec.id for spec in gym.envs.registry.all() if spec.id.find('Bullet') >= 0]
+  btenvs = ['- ' + spec.id for spec in _env_specs().values() if spec.id.find('Bullet') >= 0]
   btenvs.extend([
         '- MinitaurExtendedEnv-v0', '- MinitaurReactiveEnv-v0',
         '- MinitaurBallGymEnv-v0', '- MinitaurTrottingEnv-v0',
